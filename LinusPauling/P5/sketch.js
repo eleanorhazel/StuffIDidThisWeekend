@@ -1,0 +1,106 @@
+
+// Look variable declaration
+let rectwidth = 1;
+let widthe = 1000;
+let heighte = 1000;
+// --------------------------
+
+// State variable declaration
+let lines = []
+let states = []
+// --------------------------
+
+function setup()
+{
+	createCanvas(widthe, heighte);
+	lines = new Array(floor(width / rectwidth));
+		for (let i = 0; i < lines.length; i++)
+		{
+			lines[i] = rectwidth*i;
+			states[i] = -1;
+		}
+    lines = lines.sort(()=>random() - 0.5);
+	quickSort(lines, 0, lines.length - 1);
+}
+
+
+async function quickSort(arr, start, end) {
+  if (start >= end) {
+    return;
+  }
+  let index = await partition(arr, start, end);
+  states[index] = -1;
+
+  await Promise.all([
+    quickSort(arr, start, index - 1),
+    quickSort(arr, index + 1, end)
+  ]);
+}
+
+async function partition(arr, start, end) {
+  for (let i = start; i < end; i++) {
+    states[i] = 1;
+  }
+
+  let pivotValue = arr[end];
+  let pivotIndex = start;
+  states[pivotIndex] = 0;
+  for (let i = start; i < end; i++) {
+    if (arr[i] < pivotValue) {
+      await swap(arr, i, pivotIndex);
+      states[pivotIndex] = -1;
+      pivotIndex++;
+      states[pivotIndex] = 0;
+    }
+  }
+  await swap(arr, pivotIndex, end);
+
+  for (let i = start; i < end; i++) {
+    if (i != pivotIndex) {
+      states[i] = -1;
+    }
+  }
+
+  return pivotIndex;
+}
+
+// Drawing
+function draw() {
+  background(0);
+
+  for (let i = 0; i < lines.length; i++) {
+    noStroke();
+    if (states[i] == 0) {
+      fill('#E0777D');
+    } else if (states[i] == 1) {
+      fill('#D6FFB7');
+    } else {
+      fill(255);
+    }
+    rect(i * rectwidth, height - lines[i], rectwidth, lines[i]);
+  }
+}
+
+async function swap(arr, a, b)
+{
+  await sleep(0)
+	let temp = arr[a];
+	arr[a] = arr[b];
+	arr[b] = temp;
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Check to randomize
+function keyPressed()
+{
+	if (keyCode === 82) 
+	{
+		lines = lines.sort(()=>random() - 0.5);
+	}
+}
+
+
+
